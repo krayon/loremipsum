@@ -1,0 +1,11 @@
+LoremIpsum
+========================================
+
+A generator of lorum ipsum like text.
+
+Features include:
+    * Specify the number of paragraphs.
+    * Specify the punctuation used for ending lines.
+    * Specify the punctuation used mid lines.
+
+# vim:ts=4:tw=80:sw=4:et
