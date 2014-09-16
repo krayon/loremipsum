@@ -94,7 +94,7 @@ DEBUG=0
 ###
 # Config loading
 ###
-[ -r "${_ETC_CONF}" ] && . "${_ETC_CONF}"
+[ -r "${_ETC_CONF}"  ] && . "${_ETC_CONF}"
 [ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
 
 # Quit on error
@@ -120,7 +120,7 @@ ERR_NOWORDLIST=5
 
 # Params:
 #   NONE
-show_version() {
+function show_version() {
     echo -e "\
 ${APP_NAME} v${APP_VER}\n\
 ${APP_URL}\n\
@@ -129,7 +129,7 @@ ${APP_URL}\n\
 
 # Params:
 #   NONE
-show_usage() {
+function show_usage() {
     show_version
 cat <<EOF
 
@@ -155,7 +155,7 @@ EOF
 # Params:
 #   $1 =  (s) command to look for
 #   $2 = [(s) suspected package name]
-check_for_cmd() {
+function check_for_cmd() {
     # Check for ${1} command
     cmd="UNKNOWN"
     [ $# -gt 0 ] && cmd="${1}" && shift 1
@@ -176,7 +176,7 @@ EOF
 }
 
 # Debug echo
-decho() {
+function decho() {
     # Not debugging, get out of here then
     [ ${DEBUG} -le 0 ] && return
 
@@ -191,18 +191,18 @@ decho() {
 }
 
 # New sentence, capitalise first letter
-newsent() {
+function newsent() {
     echo "${@}"|sed 's/^\(.\)/\u\1/'
 }
 
 # Get punctuation character
-punc() {
+function punc() {
     [ ! -z "${PUNCTUATION}" ]\
         && echo "${PUNCTUATION[$((${RANDOM} % ${#PUNCTUATION[@]}))]}"
 }
 
 # Get line ending character
-lineend() {
+function lineend() {
     [ ! -z "${LINENDERS}" ]\
         && echo "${LINENDERS[$((${RANDOM} % ${#LINENDERS[@]}))]}"
 }
