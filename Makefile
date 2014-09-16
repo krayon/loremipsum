@@ -3,7 +3,7 @@
 # */
 #
 #/**********************************************************************
-#    Lorum Ipsum
+#    Lorem Ipsum
 #    Copyright (C) 2012-2014 DaTaPaX (Todd Harbour t/a)
 #
 #    This program is free software; you can redistribute it and/or

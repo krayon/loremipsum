@@ -3,7 +3,7 @@
 # ( settings from: http://datapax.com.au/code_conventions/ )
 #
 #/**********************************************************************
-#    Lorum Ipsum
+#    Lorem Ipsum
 #    Copyright (C) 2012-2014 DaTaPaX (Todd Harbour t/a)
 #
 #    This program is free software; you can redistribute it and/or
@@ -22,21 +22,21 @@
 #      51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # **********************************************************************/
 
-# lorumipsum
+# loremipsum
 #-----------
-# A generator of lorum ipsum like text
+# A generator of lorem ipsum like text
 #
 # Thanks to http://www.lipsum.com/ for the initial word list.
 
 # Config paths
-_ETC_CONF="/etc/lorumipsum.conf"
-_HOME_CONF="${HOME}/.lorumipsumrc"
+_ETC_CONF="/etc/loremipsum.conf"
+_HOME_CONF="${HOME}/.loremipsumrc"
 
 
 
 # [ CONFIG_START
 
-# Lorum Ipsum Default Configuration
+# Lorem Ipsum Default Configuration
 # =================================
 
 # WORDLIST
@@ -87,7 +87,7 @@ DEBUG=0
 # ERROR_LOG
 #   The file to output errors and debug statements (when DEBUG != 0) instead of
 #   stderr.
-#ERROR_LOG="/tmp/lorumipsum.log"
+#ERROR_LOG="/tmp/loremipsum.log"
 
 # ] CONFIG_END
 
@@ -101,9 +101,9 @@ DEBUG=0
 set -e
 
 # Version
-APP_NAME="LorumIpsum"
-APP_VER="0.02"
-APP_URL="http://www.datapax.com.au/lorumipsum/"
+APP_NAME="LoremIpsum"
+APP_VER="0.03"
+APP_URL="http://www.datapax.com.au/loremipsum/"
 
 # Program name
 PROG="$(basename "${0}")"
@@ -133,7 +133,7 @@ function show_usage() {
     show_version
 cat <<EOF
 
-${APP_NAME} generates Lorum Ipsum like output.
+${APP_NAME} generates Lorem Ipsum like output.
 
 Usage: ${PROG} -h|--help
        ${PROG} -V|--version
@@ -145,7 +145,7 @@ Usage: ${PROG} -h|--help
                       as setting DEBUG=1 in your config.
 -c|--noclassic      - Disables classic start. Classic start will always use the
                       first 8 words of the wordlist first which are, by default,
-                      "Lorum ipsum dolor sit amet, consectetur adipiscing elit"
+                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
 -p|--paragraphs     - Set's the number of paragraphs to output.
 
 Example: ${PROG} -p 5

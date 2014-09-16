@@ -1,7 +1,9 @@
 LoremIpsum
 ========================================
 
-A generator of lorum ipsum like text.
+A generator of lorem ipsum like text.
+
+The default word list included came from http://lipsum.com/
 
 Features include:
     * Specify the number of paragraphs.
