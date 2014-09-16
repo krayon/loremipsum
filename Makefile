@@ -32,7 +32,7 @@ PROGVER="$$(grep APP_VER $(APPBIN)|head -1|cut -d'"' -f2)"
 ARCHIVE_NAME="$(APPNAME)-$(PROGVER)"
 
 BUILT_FILES = $(APPNAME).DEFAULT.conf Changelog
-DIST_FILES = $(APPBIN) COPYING README TODO Makefile $(BUILT_FILES)
+DIST_FILES  = $(APPBIN) COPYING README TODO Makefile $(BUILT_FILES)
 
 
 
@@ -47,6 +47,8 @@ Changelog: svnup
 	@# Generate Changelog
 	@echo "Making Changelog..."
 	@svn log >Changelog
+
+config: $(APPNAME).DEFAULT.conf
 
 $(APPNAME).DEFAULT.conf: svnup
 	@# Generate $(APPNAME).DEFAULT.conf
