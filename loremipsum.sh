@@ -81,12 +81,13 @@ LINENDERS=('.' '.' '.' '.' '.' '.' '.' '.' '?' '?' '!')
 
 # DEBUG
 #   This defines debug mode which will output verbose info to stderr
-#   or, if configured, the debug file ( DEBUGFILE ).
+#   or, if configured, the debug file ( DEBUG_FILE ).
 DEBUG=0
 
 # DEBUG_FILE
-#   The file to debug to in the event DEBUG != 0.  If this is not set,
-#   bet DEBUG != 0, debug will be directed to stderr.
+#   The file to debug to in the event DEBUG != 0. If this is not set,
+#   DEBUG != 0, debug will be outputing to stderr. NOTE: IF this is set, stderr
+#   will be output to this file as well as debug statements.
 #DEBUG_FILE="/tmp/lorumipsum.log"
 
 # ] CONFIG_END
@@ -180,14 +181,7 @@ function decho() {
     # Not debugging, get out of here then
     [ ${DEBUG} -le 0 ] && return
 
-    # If debug file NOT set, output to stderr
-    if [ -z "${DEBUG_FILE}" ]; then
-        echo "DEBUG: ${@}" >&2
-        return
-    fi
-
-    # Output to debug file
-    echo "DEBUG: ${@}" >>"${DEBUG_FILE}"
+    echo "DEBUG: ${@}" >&2
 }
 
 # New sentence, capitalise first letter
@@ -210,6 +204,9 @@ function lineend() {
 
 
 # START #
+
+# If debug file, redirect stderr out to it
+[ ! -z "${DEBUG_FILE}" ] && exec 2>>"${DEBUG_FILE}"
 
 decho "START"
 
