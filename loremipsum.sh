@@ -81,14 +81,13 @@ LINENDERS=('.' '.' '.' '.' '.' '.' '.' '.' '?' '?' '!')
 
 # DEBUG
 #   This defines debug mode which will output verbose info to stderr
-#   or, if configured, the debug file ( DEBUG_FILE ).
+#   or, if configured, the debug file ( ERROR_LOG ).
 DEBUG=0
 
-# DEBUG_FILE
-#   The file to debug to in the event DEBUG != 0. If this is not set,
-#   DEBUG != 0, debug will be outputing to stderr. NOTE: IF this is set, stderr
-#   will be output to this file as well as debug statements.
-#DEBUG_FILE="/tmp/lorumipsum.log"
+# ERROR_LOG
+#   The file to output errors and debug statements (when DEBUG != 0) instead of
+#   stderr.
+#ERROR_LOG="/tmp/lorumipsum.log"
 
 # ] CONFIG_END
 
@@ -103,7 +102,7 @@ set -e
 
 # Version
 APP_NAME="LorumIpsum"
-APP_VER="0.01"
+APP_VER="0.02"
 APP_URL="http://www.datapax.com.au/lorumipsum/"
 
 # Program name
@@ -206,7 +205,7 @@ function lineend() {
 # START #
 
 # If debug file, redirect stderr out to it
-[ ! -z "${DEBUG_FILE}" ] && exec 2>>"${DEBUG_FILE}"
+[ ! -z "${ERROR_LOG}" ] && exec 2>>"${ERROR_LOG}"
 
 decho "START"
 
