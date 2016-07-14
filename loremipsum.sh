@@ -102,7 +102,7 @@ set -e
 
 # Version
 APP_NAME="LoremIpsum"
-APP_VER="0.03"
+APP_VER="0.04"
 APP_URL="http://www.datapax.com.au/loremipsum/"
 
 # Program name
@@ -140,7 +140,7 @@ ${APP_NAME} generates Lorem Ipsum like output.
 
 Usage: ${PROG} -h|--help
        ${PROG} -V|--version
-       ${PROG} [-v|--verbose] [-c|--noclassic] [-p|--paragraphs <PARAGRAPHS>]
+       ${PROG} [-v|--verbose] [-c|--noclassic] [-p|--paragraphs <PARAGRAPHS>] [--]
 
 -h|--help           - Displays this help
 -V|--version        - Displays the program version
@@ -184,7 +184,7 @@ function decho() {
     # Not debugging, get out of here then
     [ ${DEBUG} -le 0 ] && return
 
-    echo "DEBUG: ${@}" >&2
+    echo "[$(date +'%Y-%m-%d %H:%M')] DEBUG: ${@}" >&2
 }
 
 # New sentence, capitalise first letter
@@ -227,73 +227,82 @@ fi #}
 # Default values
 classic=1
 
+moreparams=1
 decho "Processing ${#} params..."
 while [ ${#} -gt 0 ]; do #{
     decho "Command line param: ${1}"
 
-    case "${1}" in #{
-        # Verbose mode # [-v|--verbose]
-        -v|--verbose)
-            decho "Verbose mode specified"
+    [ ${moreparams} -gt 0 ] && {
+        case "${1}" in #{
+            # Verbose mode # [-v|--verbose]
+            -v|--verbose)
+                decho "Verbose mode specified"
 
-            DEBUG=1
+                DEBUG=1
 
-            shift 1
-        ;;
+                shift 1; continue
+            ;;
 
-        # Help # -h|--help
-        -h|--help)
-            decho "Help"
+            # Help # -h|--help
+            -h|--help)
+                decho "Help"
 
-            show_usage
-            exit ${ERR_NONE}
-        ;;
+                show_usage
+                exit ${ERR_NONE}
+            ;;
 
-        # Version # -V|--version
-        -V|--version)
-            decho "Version"
+            # Version # -V|--version
+            -V|--version)
+                decho "Version"
 
-            show_version
-            exit ${ERR_NONE}
-        ;;
+                show_version
+                exit ${ERR_NONE}
+            ;;
 
-        # Paragraphs # [-p|--paragraphs <PARAGRAPHS>]
-        -p|--paragraphs)
-            decho "Paragraphs specified ( ${2} )"
+            # Paragraphs # [-p|--paragraphs <PARAGRAPHS>]
+            -p|--paragraphs)
+                decho "Paragraphs specified ( ${2} )"
 
-            [ -z "${2}" ] && {
-                echo "ERROR: Paragraphs required for -p|--paragraphs" >&2
-                exit ${ERR_MISSINGPARAM}
-            }
+                [ -z "${2}" ] && {
+                    echo "ERROR: Paragraphs required for -p|--paragraphs" >&2
+                    exit ${ERR_MISSINGPARAM}
+                }
+                shift 1
 
-            paragraphs="${2}"
+                paragraphs="${1}"
 
-            shift 2
-        ;;
+                shift 1; continue
+            ;;
 
-        # No Classic # [-c|--noclassic]
-        -c|--noclassic)
-            decho "No Classic specified"
+            # No Classic # [-c|--noclassic]
+            -c|--noclassic)
+                decho "No Classic specified"
 
-            classic=0
+                classic=0
 
-            shift 1
-        ;;
+                shift 1; continue
+            ;;
 
-        *)
-            [ "${1:0:1}" == "-" ] && {
-                # Assume a parameter
-                echo "ERROR: Unrecognised parameter ${1}..." >&2
-                exit ${ERR_UNKNOWNOPT}
-            }
+            *)
+                [ "${1}" == "--" ] && {
+                    # No more parameters to come
+                    moreparams=0
+                    shift 1; continue
+                }
 
-            # File
-            decho "File ID specified ( ${1} )"
-            files+=("${1}")
-            shift 1
-        ;;
+                [ "${1:0:1}" == "-" ] && {
+                    # Assume a parameter
+                    echo "ERROR: Unrecognised parameter ${1}..." >&2
+                    exit ${ERR_UNKNOWNOPT}
+                }
+            ;;
 
-    esac #}
+        esac #}
+    }
+
+    # Extra command line options
+    echo "ERROR: Extra unrecognised parameters ${@}..." >&2
+    exit ${ERR_UNKNOWNOPT}
 done #}
 
 # Ensure paragraphs is a number
