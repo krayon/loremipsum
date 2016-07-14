@@ -94,8 +94,8 @@ DEBUG=0
 ###
 # Config loading
 ###
-[ -r "${_ETC_CONF}"  ] && . "${_ETC_CONF}"
-[ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
+[ ! -z "${_ETC_CONF}"  ] && [ -r "${_ETC_CONF}"  ] && . "${_ETC_CONF}"
+[ ! -z "${_HOME_CONF}" ] && [ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
 
 # Quit on error
 set -e
@@ -166,7 +166,7 @@ function check_for_cmd() {
 cat <<EOF >&2
 ERROR: Cannot find ${cmd}.  This is required.
 Ensure you have ${pkg} installed or search for ${cmd}
-in your distributions' packages.
+in your distribution's packages.
 EOF
 
         exit ${ERR_MISSINGDEP}

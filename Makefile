@@ -1,4 +1,4 @@
-#/* vim:set tabstop=4 textwidth=80 shiftwidth=4 cindent cino=(0,ml,\:0:
+#/* vim:set ts=4 tw=80 sw=4 ci ai si cino=(0,ml,\:0:
 # * ( settings from: http://datapax.com.au/code_conventions/ )
 # */
 #
