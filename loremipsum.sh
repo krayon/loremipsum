@@ -116,6 +116,9 @@ ERR_INVALIDOPT=3
 ERR_MISSINGPARAM=4
 ERR_NOWORDLIST=5
 
+# Defaults not in config
+paragraphs=5
+
 
 
 # Params:
@@ -146,7 +149,8 @@ Usage: ${PROG} -h|--help
 -c|--noclassic      - Disables classic start. Classic start will always use the
                       first 8 words of the wordlist first which are, by default,
                       "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
--p|--paragraphs     - Set's the number of paragraphs to output.
+-p|--paragraphs     - Sets the number of paragraphs to output
+                      (DEFAULT: ${paragraphs}).
 
 Example: ${PROG} -p 5
 EOF
@@ -221,7 +225,6 @@ fi #}
 
 
 # Default values
-paragraphs=5
 classic=1
 
 decho "Processing ${#} params..."
