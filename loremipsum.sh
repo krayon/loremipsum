@@ -195,7 +195,7 @@ EOF
 
 # Output configuration file
 function output_config() {
-    cat "emailobfuscate.bash"|\
+    cat "loremipsum.sh"|\
          grep -A999 '# \[ CONFIG_START'\
         |grep -v    '# \[ CONFIG_START'\
         |grep -B999 '# \] CONFIG_END'  \
