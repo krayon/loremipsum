@@ -27,7 +27,7 @@ ARCHIVER    = tar -zcvf
 ARCHIVE_EXT = tar.gz
 
 APPNAME = loremipsum
-APPBIN  = $(APPNAME).sh
+APPBIN  = $(APPNAME).bash
 PROGVER="$$(grep APP_VER $(APPBIN)|head -1|cut -d'"' -f2)"
 ARCHIVE_NAME="$(APPNAME)-$(PROGVER)"
 

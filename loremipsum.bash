@@ -195,7 +195,7 @@ EOF
 
 # Output configuration file
 function output_config() {
-    cat "loremipsum.sh"|\
+    cat "loremipsum.bash"|\
          grep -A999 '# \[ CONFIG_START'\
         |grep -v    '# \[ CONFIG_START'\
         |grep -B999 '# \] CONFIG_END'  \
