@@ -38,7 +38,7 @@ _HOME_CONF="${HOME}/.loremipsumrc"
 # Do NOT edit the CONFIGURATION below. Instead generate the default
 # configuration file in your home directory thusly:
 #
-#     ./loremipsum.sh -C >~/.loremipsumrc
+#     ./loremipsum.bash -C >~/.loremipsumrc
 #
 ####################################
 
