@@ -4,7 +4,7 @@
 #
 #/**********************************************************************
 #    Lorem Ipsum
-#    Copyright (C) 2012-2014 DaTaPaX (Todd Harbour t/a)
+#    Copyright (C) 2012-2016 DaTaPaX (Todd Harbour t/a)
 #
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -33,6 +33,14 @@ _ETC_CONF="/etc/loremipsum.conf"
 _HOME_CONF="${HOME}/.loremipsumrc"
 
 
+############### STOP ###############
+#
+# Do NOT edit the CONFIGURATION below. Instead generate the default
+# configuration file in your home directory thusly:
+#
+#     ./loremipsum.sh -C >~/.loremipsumrc
+#
+####################################
 
 # [ CONFIG_START
 
@@ -140,10 +148,16 @@ ${APP_NAME} generates Lorem Ipsum like output.
 
 Usage: ${PROG} -h|--help
        ${PROG} -V|--version
+       ${PROG} -C|--configuration
        ${PROG} [-v|--verbose] [-c|--noclassic] [-p|--paragraphs <PARAGRAPHS>] [--]
 
 -h|--help           - Displays this help
 -V|--version        - Displays the program version
+-C|--configuration  - Outputs the default configuration that can be placed in
+                          ${_ETC_CONF}
+                      or
+                          ${_HOME_CONF}
+                      for editing.
 -v|--verbose        - Displays extra debugging information.  This is the same
                       as setting DEBUG=1 in your config.
 -c|--noclassic      - Disables classic start. Classic start will always use the
@@ -177,6 +191,16 @@ EOF
     }
 
     return ${ERR_NONE}
+}
+
+# Output configuration file
+function output_config() {
+    cat "emailobfuscate.bash"|\
+         grep -A999 '# \[ CONFIG_START'\
+        |grep -v    '# \[ CONFIG_START'\
+        |grep -B999 '# \] CONFIG_END'  \
+        |grep -v    '# \] CONFIG_END'  \
+    #
 }
 
 # Debug echo
@@ -256,6 +280,14 @@ while [ ${#} -gt 0 ]; do #{
                 decho "Version"
 
                 show_version
+                exit ${ERR_NONE}
+            ;;
+
+            # Configuration output # -C|--configuration
+            -C|--configuration)
+                decho "Configuration"
+
+                output_config
                 exit ${ERR_NONE}
             ;;
 
