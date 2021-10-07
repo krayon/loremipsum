@@ -110,7 +110,7 @@ set -e
 
 # Version
 APP_NAME="LoremIpsum"
-APP_VER="0.06"
+APP_VER="0.07"
 APP_URL="http://www.datapax.com.au/loremipsum/"
 
 # Program name
@@ -131,16 +131,16 @@ paragraphs=5
 
 # Params:
 #   NONE
-function show_version() {
+show_version() {
     echo -e "\
 ${APP_NAME} v${APP_VER}\n\
 ${APP_URL}\n\
 "
-}
+} # show_version()
 
 # Params:
 #   NONE
-function show_usage() {
+show_usage() {
     show_version
 cat <<EOF
 
@@ -168,12 +168,12 @@ Usage: ${PROG} -h|--help
 
 Example: ${PROG} -p 5
 EOF
-}
+} # show_usage()
 
 # Params:
 #   $1 =  (s) command to look for
 #   $2 = [(s) suspected package name]
-function check_for_cmd() {
+check_for_cmd() {
     # Check for ${1} command
     cmd="UNKNOWN"
     [ $# -gt 0 ] && cmd="${1}" && shift 1
@@ -191,42 +191,37 @@ EOF
     }
 
     return ${ERR_NONE}
-}
+} # check_for_cmd()
 
 # Output configuration file
-function output_config() {
-    cat "${0}"|\
-         grep -A999 '# \[ CONFIG_START'\
-        |grep -v    '# \[ CONFIG_START'\
-        |grep -B999 '# \] CONFIG_END'  \
-        |grep -v    '# \] CONFIG_END'  \
-    #
-}
+output_config() {
+    sed -n '/^# \[ CONFIG_START/,/^# \] CONFIG_END/p' <"${0}"
+} # output_config()
 
 # Debug echo
-function decho() {
+decho() {
     # Not debugging, get out of here then
     [ ${DEBUG} -le 0 ] && return
 
     echo "[$(date +'%Y-%m-%d %H:%M')] DEBUG: ${@}" >&2
-}
+} # decho()
 
 # New sentence, capitalise first letter
-function newsent() {
+newsent() {
     echo "${@}"|sed 's/^\(.\)/\u\1/'
-}
+} # newsent()
 
 # Get punctuation character
-function punc() {
+punc() {
     [ ! -z "${PUNCTUATION}" ]\
         && echo "${PUNCTUATION[$((${RANDOM} % ${#PUNCTUATION[@]}))]}"
-}
+} # punc()
 
 # Get line ending character
-function lineend() {
+lineend() {
     [ ! -z "${LINENDERS}" ]\
         && echo "${LINENDERS[$((${RANDOM} % ${#LINENDERS[@]}))]}"
-}
+} # lineend()
 
 
 

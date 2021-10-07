@@ -22,62 +22,98 @@
 #      51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # **********************************************************************/
 
+
+# Krayon's GPG code signing key
+GPG_KEY        = 81ECF212
+
 # Programs
-ARCHIVER    = tar -zcvf
-ARCHIVE_EXT = tar.gz
+ARCHIVER       = tar -zcvf
+ARCHIVE_EXT    = tar.gz
 
 APPNAME = loremipsum
 APPBIN  = $(APPNAME).bash
-PROGVER="$$(grep APP_VER $(APPBIN)|head -1|cut -d'"' -f2)"
-ARCHIVE_NAME="$(APPNAME)-$(PROGVER)"
+APPVER  = $(shell grep APP_VER $(APPBIN)|head -1|cut -d'"' -f2)
 
-BUILT_FILES = $(APPNAME).DEFAULT.conf Changelog
-DIST_FILES  = $(APPBIN) COPYING README TODO Makefile $(BUILT_FILES)
+ARCHIVE_NAME   = $(APPNAME)-$(APPVER)
+ARCHIVE_FILE   = $(ARCHIVE_NAME).$(ARCHIVE_EXT)
 
+BUILT_FILES    = $(APPNAME).DEFAULT.conf Changelog $(APPBIN).asc
+DIST_FILES     = $(APPBIN) COPYING README.md TODO.md Makefile $(BUILT_FILES)
 
 
 # Default target
-_PHONY: err
+.PHONY: _PHONY
+_PHONY: all
 
-svnup:
-	# Ensure up to date
-	svn up
 
-Changelog: svnup
+
+all: $(DIST_FILES) done
+
+
+
+gitup:
+	@echo "$(APPNAME)"
+	@# Ensure up to date
+	@echo "Pulling from origin..."
+	@git pull || true
+
+Changelog: gitup
 	@# Generate Changelog
-	@echo "Making Changelog..."
-	@svn log >Changelog
+	@echo "Generating Changelog..."
+	@git log --color=never --pretty=tformat:"%ai %an <%aE>%n%w(76,4,4)%h %s%n%+b" >Changelog
 
 config: $(APPNAME).DEFAULT.conf
-
-$(APPNAME).DEFAULT.conf: svnup
+$(APPNAME).DEFAULT.conf: gitup
 	@# Generate $(APPNAME).DEFAULT.conf
 	@echo "Making $(APPNAME).DEFAULT.conf..."
-	@grep -A999 '# \[ CONFIG_START' $(APPBIN)|grep -v '# \[ CONFIG_START'|grep -B999 '# \] CONFIG_END'|grep -v '# \] CONFIG_END' >$(APPNAME).DEFAULT.conf
+	@sed -n '/^# \[ CONFIG_START/,/^# \] CONFIG_END/p' <"$(APPBIN)" >$(APPNAME).DEFAULT.conf
 
+
+
+# Error
 err:
 	@echo "No target specified (try dist)"
 
-dist: $(DIST_FILES)
-	@echo "Making " $(ARCHIVE_NAME).$(ARCHIVE_EXT)
+# Done
+done:
+	@echo "BUILD COMPLETE: $(APPNAME) ($(BINNAME)) v$(APPVER)"
 
+# Sign
+sign: $(APPBIN).asc
+
+
+
+%.asc: %
+	@echo "Signing: $${f}..."
+	@rm "$@" 2>/dev/null || true
+	gpg -o $@ --local-user $(GPG_KEY) --armor --detach-sign $<
+
+$(ARCHIVE_FILE): $(DIST_FILES)
+	@echo "Making $(ARCHIVE_FILE)..."
+	
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
 		echo "Directory '$(ARCHIVE_NAME)' exists"; \
 		exit 1; \
 	fi
-
-	@if [ -f "$(ARCHIVE_NAME).$(ARCHIVE_EXT)" ]; then \
-		echo "Archive '$(ARCHIVE_NAME).$(ARCHIVE_EXT)' exists"; \
+	
+	@if [ -f "$(ARCHIVE_FILE)" ]; then \
+		echo "Archive '$(ARCHIVE_FILE)' exists"; \
 		exit 2; \
 	fi
-
+	
 	@mkdir "$(ARCHIVE_NAME)"
 	
 	@cp -a $(DIST_FILES) "$(ARCHIVE_NAME)/"
-	@$(ARCHIVER) "$(ARCHIVE_NAME).$(ARCHIVE_EXT)" "$(ARCHIVE_NAME)/"
+	@$(ARCHIVER) "$(ARCHIVE_FILE)" "$(ARCHIVE_NAME)/"
+
+#dist: gitup Changelog $(APPNAME).DEFAULT.conf
+dist: $(ARCHIVE_FILE) $(ARCHIVE_FILE).asc
 
 clean:
 	@echo "Cleaning up..."
+	
+	@echo "  deleting: Changelog";
+	@rm -f Changelog;
 	
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
 		echo "  deleting: $(ARCHIVE_NAME)"; \
@@ -89,11 +125,6 @@ clean:
 distclean: clean
 	@echo "Cleaning (for distribution)..."
 	
-	@if [ -f "$(ARCHIVE_NAME).$(ARCHIVE_EXT)" ]; then \
-		echo "  deleting: $(ARCHIVE_NAME).$(ARCHIVE_EXT)"; \
-		rm "$(ARCHIVE_NAME).$(ARCHIVE_EXT)"; \
-	fi
-	
-	@for f in $(BUILT_FILES); do \
-		[ -f "$${f}" ] && rm "$${f}" || true; \
+	@for f in $(ARCHIVE_FILE).asc $(ARCHIVE_FILE) $(BUILT_FILES); do \
+		[ -f "$${f}" ] && echo "  deleting: $${f}" && rm "$${f}" || true; \
 	done

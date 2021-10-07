@@ -19,4 +19,10 @@ The configuration files that will be read (in order) are:
     * `/etc/loremipsum.conf`
     * `<YOUR_HOME_DIRECTORY>/.loremipsumrc`
 
+Other `make` options are:
+    * `config`    - Generate default config file
+    * `all`       - Build all support files (Changelog, default config etc)
+    * `Changelog` - Build Changelog file
+    * `dist`      - Build all files and create a release tarball
+
 [//]: # ( vim: set ts=4 sw=4 et cindent tw=80 ai si syn=markdown ft=markdown: )
