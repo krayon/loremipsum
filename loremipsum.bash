@@ -110,7 +110,7 @@ set -e
 
 # Version
 APP_NAME="LoremIpsum"
-APP_VER="0.07"
+APP_VER="0.08"
 APP_URL="http://www.datapax.com.au/loremipsum/"
 
 # Program name
