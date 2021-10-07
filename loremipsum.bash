@@ -4,7 +4,7 @@
 #
 #/**********************************************************************
 #    Lorem Ipsum
-#    Copyright (C) 2012-2016 DaTaPaX (Todd Harbour t/a)
+#    Copyright (C) 2012-2021 DaTaPaX (Todd Harbour t/a)
 #
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -110,7 +110,7 @@ set -e
 
 # Version
 APP_NAME="LoremIpsum"
-APP_VER="0.05"
+APP_VER="0.06"
 APP_URL="http://www.datapax.com.au/loremipsum/"
 
 # Program name

@@ -1,5 +1,5 @@
-LoremIpsum
-========================================
+## LoremIpsum
+-----
 
 A generator of lorem ipsum like text.
 
@@ -10,12 +10,13 @@ Features include:
     * Specify the punctuation used for ending lines.
     * Specify the punctuation used mid lines.
 
-The default configuration file is included ( loremipsum.DEFAULT.conf ) or can
+The default configuration file is included ( `loremipsum.DEFAULT.conf` ) or can
 be built by running:
-    make config
+    * `make config`
 
 The configuration files that will be read (in order) are:
-    /etc/loremipsum.conf
-    <YOUR_HOME_DIRECTORY>/.loremipsumrc
 
-# vim:ts=4:tw=80:sw=4:et
+    * `/etc/loremipsum.conf`
+    * `<YOUR_HOME_DIRECTORY>/.loremipsumrc`
+
+[//]: # ( vim: set ts=4 sw=4 et cindent tw=80 ai si syn=markdown ft=markdown: )
