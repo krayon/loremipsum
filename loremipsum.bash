@@ -1,10 +1,9 @@
 #!/bin/bash
-# vim:set tabstop=4 textwidth=80 shiftwidth=4 expandtab cindent cino=(0,ml,\:0:
-# ( settings from: http://datapax.com.au/code_conventions/ )
+# vim:set ts=4 sw=4 tw=80 et ai si cindent cino=L0,b1,(1s,U1,m1,j1,J1,)50,*90 cinkeys=0{,0},0),0],\:,0#,!^F,o,O,e,0=break:
 #
 #/**********************************************************************
-#    Lorem Ipsum
-#    Copyright (C) 2012-2021 DaTaPaX (Todd Harbour t/a)
+#    Lorem Ipsum (loremipsum)
+#    Copyright (C) 2012-2022 DaTaPaX (Todd Harbour t/a)
 #
 #    This program is free software; you can redistribute it and/or
 #    modify it under the terms of the GNU General Public License
@@ -26,26 +25,51 @@
 #-----------
 # A generator of lorem ipsum like text
 #
+# Required:
+#     -
+# Recommended:
+#     -
+#
 # Thanks to http://www.lipsum.com/ for the initial word list.
 
 # Config paths
-_ETC_CONF="/etc/loremipsum.conf"
-_HOME_CONF="${HOME}/.loremipsumrc"
+_APP_NAME="loremipsum"
+_CONF_FILENAME="${_APP_NAME}.conf"
+_ETC_CONF="/etc/${_CONF_FILENAME}"
+
 
 
 ############### STOP ###############
 #
 # Do NOT edit the CONFIGURATION below. Instead generate the default
-# configuration file in your home directory thusly:
+# configuration file in your XDG_CONFIG directory thusly:
 #
-#     ./loremipsum.bash -C >~/.loremipsumrc
+#     ./loremipsum.bash -C >"$XDG_CONFIG_HOME/loremipsum.conf"
+#
+# or perhaps:
+#     ./loremipsum.bash -C >~/.config/loremipsum.conf
+#
+# or even in your home directory (deprecated):
+#     ./loremipsum.bash -C >~/.loremipsum.conf
+#
+# Consult --help for more complete information.
 #
 ####################################
 
 # [ CONFIG_START
 
-# Lorem Ipsum Default Configuration
-# =================================
+# Lorem Ipsum - Default Configuration
+# ===================================
+
+# DEBUG
+#   This defines debug mode which will output verbose info to stderr or, if
+#   configured, the debug file ( ERROR_LOG ).
+DEBUG=0
+
+# ERROR_LOG
+#   The file to output errors and debug statements (when DEBUG != 0) instead of
+#   stderr.
+#ERROR_LOG="${HOME}/loremipsum.log"
 
 # WORDLIST
 #   This is the wordlist used for generation.  You can replace this
@@ -87,34 +111,79 @@ PUNCTUATION=(',' ',' ',' ';' ';' ' -')
 #   repeating it.
 LINENDERS=('.' '.' '.' '.' '.' '.' '.' '.' '?' '?' '!')
 
-# DEBUG
-#   This defines debug mode which will output verbose info to stderr
-#   or, if configured, the debug file ( ERROR_LOG ).
-DEBUG=0
-
-# ERROR_LOG
-#   The file to output errors and debug statements (when DEBUG != 0) instead of
-#   stderr.
-#ERROR_LOG="/tmp/loremipsum.log"
-
 # ] CONFIG_END
 
+
+
+####################################{
 ###
 # Config loading
 ###
-[ ! -z "${_ETC_CONF}"  ] && [ -r "${_ETC_CONF}"  ] && . "${_ETC_CONF}"
-[ ! -z "${_HOME_CONF}" ] && [ -r "${_HOME_CONF}" ] && . "${_HOME_CONF}"
+
+# A list of configs - user provided prioritised over system
+# (built backwards to save fiddling with CONFIG_DIRS order)
+_CONFS=""
+
+# XDG Base (v0.8) - User level
+# ( https://specifications.freedesktop.org/basedir-spec/0.8/ )
+# ( xdg_base_spec.0.8.txt )
+_XDG_CONF_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}"
+# As per spec, non-absolute paths are invalid and must be ignored
+[ "${_XDG_CONF_DIR:0:1}" == "/" ] && {
+        for conf in\
+            "${_XDG_CONF_DIR}/${_APP_NAME}/${_CONF_FILENAME}"\
+            "${_XDG_CONF_DIR}/${_CONF_FILENAME}"\
+        ; do #{
+            [ -r "${conf}" ] && _CONFS="${conf}:${_CONFS}"
+        done #}
+}
+
+# XDG Base (v0.8) - System level
+# ( https://specifications.freedesktop.org/basedir-spec/0.8/ )
+# ( xdg_base_spec.0.8.txt )
+_XDG_CONF_DIRS="${XDG_CONFIG_DIRS:-/etc/xdg}"
+# NOTE: Appending colon as read's '-d' sets the TERMINATOR (not delimiter)
+[ "${_XDG_CONF_DIRS: -1:1}" != ":" ] && _XDG_CONF_DIRS="${_XDG_CONF_DIRS}:"
+while read -r -d: _XDG_CONF_DIR; do #{
+    # As per spec, non-absolute paths are invalid and must be ignored
+    [ "${_XDG_CONF_DIR:0:1}" == "/" ] && {
+        for conf in\
+            "${_XDG_CONF_DIR}/${_APP_NAME}/${_CONF_FILENAME}"\
+            "${_XDG_CONF_DIR}/${_CONF_FILENAME}"\
+        ; do #{
+            [ -r "${conf}" ] && _CONFS="${conf}:${_CONFS}"
+        done #}
+    }
+done <<<"${_XDG_CONF_DIRS}" #}
+
+# OLD standard
+[ -r "${HOME}/.${_CONF_FILENAME}" ] && _CONFS="${HOME}/.${_CONF_FILENAME}:${_CONFS}"
+
+# _CONFS now contains a list of config files, in reverse importance order. We
+# can therefore source each in turn, allowing the more important to override the
+# earlier ones.
+
+# NOTE: Appending colon as read's '-d' sets the TERMINATOR (not delimiter)
+[ "${_CONF: -1:1}" != ":" ] && _CONF="${_CONF}:"
+while read -r -d: conf; do #{
+    . "${conf}"
+done <<<"${_CONFS}" #}
+####################################}
+
 
 # Quit on error
 set -e
 
 # Version
 APP_NAME="LoremIpsum"
-APP_VER="0.08"
-APP_URL="http://www.datapax.com.au/loremipsum/"
+APP_VER="0.09"
+APP_COPY="(C)2012-2022 Krayon (Todd Harbour)"
+APP_URL="http://www.datapax.com.au/apps/loremipsum/"
 
 # Program name
-PROG="$(basename "${0}")"
+_binname="${_APP_NAME}"
+_binname="${0##*/}"
+_binnam_="${_binname//?/ }"
 
 # exit condition constants
 ERR_NONE=0
@@ -125,6 +194,8 @@ ERR_MISSINGPARAM=4
 ERR_NOWORDLIST=5
 
 # Defaults not in config
+
+classic=1
 paragraphs=5
 
 
@@ -132,9 +203,10 @@ paragraphs=5
 # Params:
 #   NONE
 show_version() {
-    echo -e "\
+    echo -e "\n\
 ${APP_NAME} v${APP_VER}\n\
-${APP_URL}\n\
+${APP_COPY}\n\
+${APP_URL}${APP_URL:+\n}\
 "
 } # show_version()
 
@@ -142,21 +214,36 @@ ${APP_URL}\n\
 #   NONE
 show_usage() {
     show_version
+
 cat <<EOF
 
 ${APP_NAME} generates Lorem Ipsum like output.
 
-Usage: ${PROG} -h|--help
-       ${PROG} -V|--version
-       ${PROG} -C|--configuration
-       ${PROG} [-v|--verbose] [-c|--noclassic] [-p|--paragraphs <PARAGRAPHS>] [--]
+Usage: ${_binname} [-v|--verbose] -h|--help
+       ${_binname} [-v|--verbose] -V|--version
+       ${_binname} [-v|--verbose] -C|--configuration
+
+       ${_binname} [-v|--verbose] [-c|--noclassic]
+       ${_binnam_} [-p|--paragraphs <PARAGRAPHS>] [--]
 
 -h|--help           - Displays this help
 -V|--version        - Displays the program version
--C|--configuration  - Outputs the default configuration that can be placed in
-                          ${_ETC_CONF}
-                      or
-                          ${_HOME_CONF}
+-C|--configuration  - Outputs the default configuration that can be placed in a
+                      config file in XDG_CONFIG or one of the XDG_CONFIG_DIRS
+                      (in order of decreasing precedence):
+                          ${XDG_CONFIG_HOME:-${HOME}/.config}/${_APP_NAME}/${_CONF_FILENAME}
+                          ${XDG_CONFIG_HOME:-${HOME}/.config}/${_CONF_FILENAME}
+EOF
+    while read -r -d: _XDG_CONF_DIR; do #{
+        # As per spec, non-absolute paths are invalid and must be ignored
+        [ "${_XDG_CONF_DIR:0:1}" != "/" ] && continue
+cat <<EOF
+                          ${_XDG_CONF_DIR}/${_APP_NAME}/${_CONF_FILENAME}
+                          ${_XDG_CONF_DIR}/${_CONF_FILENAME}
+EOF
+    done <<<"${_XDG_CONF_DIRS:-/etc/xdg}:" #}
+cat <<EOF
+                          ${HOME}/.${_CONF_FILENAME}
                       for editing.
 -v|--verbose        - Displays extra debugging information.  This is the same
                       as setting DEBUG=1 in your config.
@@ -166,32 +253,10 @@ Usage: ${PROG} -h|--help
 -p|--paragraphs     - Sets the number of paragraphs to output
                       (DEFAULT: ${paragraphs}).
 
-Example: ${PROG} -p 5
+Example: ${_binname} -p 5
 EOF
+
 } # show_usage()
-
-# Params:
-#   $1 =  (s) command to look for
-#   $2 = [(s) suspected package name]
-check_for_cmd() {
-    # Check for ${1} command
-    cmd="UNKNOWN"
-    [ $# -gt 0 ] && cmd="${1}" && shift 1
-    pkg="${cmd}"
-    [ $# -gt 0 ] && pkg="${1}" && shift 1
-
-    which "${cmd}" >/dev/null 2>&1 || {
-cat <<EOF >&2
-ERROR: Cannot find ${cmd}.  This is required.
-Ensure you have ${pkg} installed or search for ${cmd}
-in your distribution's packages.
-EOF
-
-        exit ${ERR_MISSINGDEP}
-    }
-
-    return ${ERR_NONE}
-} # check_for_cmd()
 
 # Output configuration file
 output_config() {
@@ -200,11 +265,32 @@ output_config() {
 
 # Debug echo
 decho() {
-    # Not debugging, get out of here then
-    [ ${DEBUG} -le 0 ] && return
+    # global $DEBUG
+    local line
 
-    echo "[$(date +'%Y-%m-%d %H:%M')] DEBUG: ${@}" >&2
+    # Not debugging, get out of here then
+    [ -z "${DEBUG}" ] || [ "${DEBUG}" -le 0 ] && return
+
+    # If message is "-" or isn't specified, use stdin ("" is valid input)
+    msg="${@}"
+    [ ${#} -lt 1 ] || [ "${msg}" == "-" ] && msg="$(</dev/stdin)"
+
+    while IFS="" read -r line; do #{
+        >&2 echo "[$(date +'%Y-%m-%d %H:%M')] DEBUG: ${line}"
+    done< <(echo "${msg}") #}
 } # decho()
+
+
+
+# START #
+
+# Clear DEBUG if it's 0
+[ -n "${DEBUG}" ] && [ "${DEBUG}" == "0" ] && DEBUG=
+
+# If debug file, redirect stderr out to it
+[ -n "${ERROR_LOG}" ] && exec 2>>"${ERROR_LOG}"
+
+#----------------------------------------------------------
 
 # New sentence, capitalise first letter
 newsent() {
@@ -225,15 +311,113 @@ lineend() {
 
 
 
-# START #
+#----------------------------------------------------------
 
-# If debug file, redirect stderr out to it
-[ ! -z "${ERROR_LOG}" ] && exec 2>>"${ERROR_LOG}"
+# Process command line parameters
+opts=$(\
+    getopt\
+        --options v,h,V,C,c,p:\
+        --long verbose,help,version,configuration,noclassic,paragraphs:\
+        --name "${_binname}"\
+        --\
+        "$@"\
+) || {
+    >&2 echo "ERROR: Syntax error"
+    >&2 show_usage
+    exit ${ERR_USAGE}
+}
 
-decho "START"
+eval set -- "${opts}"
+unset opts
 
-# Check for wget
-check_for_cmd "wget" "wget"
+while :; do #{
+    case "${1}" in #{
+        # Verbose mode # [-v|--verbose]
+        -v|--verbose)
+            decho "Verbose mode specified"
+            DEBUG=1
+        ;;
+
+        # Help # -h|--help
+        -h|--help)
+            decho "Help"
+
+            show_usage
+            exit ${ERR_NONE}
+        ;;
+
+        # Version # -V|--version
+        -V|--version)
+            decho "Version"
+
+            show_version
+            exit ${ERR_NONE}
+        ;;
+
+        # Configuration output # -C|--configuration
+        -C|--configuration)
+            decho "Configuration"
+
+            output_config
+            exit ${ERR_NONE}
+        ;;
+
+        # Paragraphs # -p|--paragraphs <PARAGRAPHS>
+        -p|--paragraphs)
+            decho "Paragraphs: ${2}"
+
+            paragraphs="${2}"
+            shift 1
+        ;;
+
+        # No Classic # -c|--noclassic
+        -c|--noclassic)
+            decho "No Classic"
+
+            classic=0
+        ;;
+
+        --)
+            shift
+            break
+        ;;
+
+        -)
+            # Read stdin
+            #set -- "/dev/stdin"
+            # FALL THROUGH TO FILE HANDLER BELOW
+        ;;
+
+        *)
+            >&2 echo "ERROR: Unrecognised parameter ${1}..."
+            exit ${ERR_USAGE}
+        ;;
+    esac #}
+
+    shift
+
+done #}
+
+# Unrecognised parameters
+[ ${#} -gt 0 ] && {
+    >&2 echo "ERROR: Unrecognised parameters: ${@}..."
+    exit ${ERR_USAGE}
+}
+
+#                [ "${1:0:1}" == "-" ] && {
+#                    # Assume a parameter
+#                    echo "ERROR: Unrecognised parameter ${1}..." >&2
+#                    exit ${ERR_UNKNOWNOPT}
+#                }
+#
+#    # Extra command line options
+#    echo "ERROR: Extra unrecognised parameters ${@}..." >&2
+#    exit ${ERR_UNKNOWNOPT}
+
+
+
+# Check for dependencies
+# -
 
 # Check for WORDLIST set
 if [ -z "${WORDLIST}" ] || [ ${#WORDLIST[@]} -lt 1 ]; then #{
@@ -243,95 +427,6 @@ fi #}
 
 
 
-# Default values
-classic=1
-
-moreparams=1
-decho "Processing ${#} params..."
-while [ ${#} -gt 0 ]; do #{
-    decho "Command line param: ${1}"
-
-    [ ${moreparams} -gt 0 ] && {
-        case "${1}" in #{
-            # Verbose mode # [-v|--verbose]
-            -v|--verbose)
-                decho "Verbose mode specified"
-
-                DEBUG=1
-
-                shift 1; continue
-            ;;
-
-            # Help # -h|--help
-            -h|--help)
-                decho "Help"
-
-                show_usage
-                exit ${ERR_NONE}
-            ;;
-
-            # Version # -V|--version
-            -V|--version)
-                decho "Version"
-
-                show_version
-                exit ${ERR_NONE}
-            ;;
-
-            # Configuration output # -C|--configuration
-            -C|--configuration)
-                decho "Configuration"
-
-                output_config
-                exit ${ERR_NONE}
-            ;;
-
-            # Paragraphs # [-p|--paragraphs <PARAGRAPHS>]
-            -p|--paragraphs)
-                decho "Paragraphs specified ( ${2} )"
-
-                [ -z "${2}" ] && {
-                    echo "ERROR: Paragraphs required for -p|--paragraphs" >&2
-                    exit ${ERR_MISSINGPARAM}
-                }
-                shift 1
-
-                paragraphs="${1}"
-
-                shift 1; continue
-            ;;
-
-            # No Classic # [-c|--noclassic]
-            -c|--noclassic)
-                decho "No Classic specified"
-
-                classic=0
-
-                shift 1; continue
-            ;;
-
-            *)
-                [ "${1}" == "--" ] && {
-                    # No more parameters to come
-                    moreparams=0
-                    shift 1; continue
-                }
-
-                [ "${1:0:1}" == "-" ] && {
-                    # Assume a parameter
-                    echo "ERROR: Unrecognised parameter ${1}..." >&2
-                    exit ${ERR_UNKNOWNOPT}
-                }
-            ;;
-
-        esac #}
-    }
-
-    # Extra command line options
-    echo "ERROR: Extra unrecognised parameters ${@}..." >&2
-    exit ${ERR_UNKNOWNOPT}
-done #}
-
 # Ensure paragraphs is a number
 if [ -z "$(echo "${paragraphs}"|sed '/[^[:digit:]]/d')" ]; then
     # Invalid digit
@@ -339,6 +434,10 @@ if [ -z "$(echo "${paragraphs}"|sed '/[^[:digit:]]/d')" ]; then
     exit ${ERR_INVALIDOPT}
 fi  
 paragraphs=$((${paragraphs} + 0))
+
+
+
+decho "START"
 
 output=""
 #s_count=0
@@ -353,7 +452,6 @@ if [ ${classic} -eq 1 ]; then #{
     done #}
 
     output+=". "
-#    s_count=$((${s_count} + 1))
 fi #}
 
 p_desired=${paragraphs}
@@ -405,11 +503,11 @@ while [ ${p_count} -lt ${p_desired} ]; do #{
         [ ${s_count} -lt ${s_desired} ] && output+=" " || output+="\n"
     done #}
 
-    echo -e "${output}"; output=""
+    echo -en "${output}"; output=""
 
     p_count=$((${p_count} + 1))
 done #}
 
-echo "${output}"
+echo -n "${output}"
 
 decho "DONE"

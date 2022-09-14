@@ -21,7 +21,7 @@ be built by running:
 The configuration files that will be read (in order) are:
 
   * `/etc/loremipsum.conf`
-  * `<YOUR_HOME_DIRECTORY>/.loremipsumrc`
+  * `<YOUR_HOME_DIRECTORY>/.loremipsum.conf`
 
 ### Makefile options
 
